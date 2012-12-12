@@ -36,9 +36,8 @@
 		<rm:provider componentTypes="osgi.bundle,eclipse.feature,buckminster"
 			readerType="git" source="true">
 			<rm:property key="git.remote.uri" value="git@github.com:kbrezina/modinfo.git" />
-			<rm:uri format="{0}/{1},{2}">
+			<rm:uri format="{0}/modinfo,{2}">
 				<bc:propertyRef key="releng.clone.root" />
-				<bc:propertyRef key="hammer.clone" />
 				<bc:propertyRef key="buckminster.component" />
 			</rm:uri>
 		</rm:provider>
