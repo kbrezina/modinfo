@@ -10,4 +10,6 @@ Require-Bundle: org.cloudsmith.geppetto.forge;bundle-version="2.0.0",
  org.eclipse.core.runtime;bundle-version="3.8.0",
  org.cloudsmith.geppetto.pp.dsl;bundle-version="3.0.1",
  org.cloudsmith.geppetto.puppetlint;bundle-version="1.0.0",
- org.cloudsmith.geppetto.common;bundle-version="2.0.0"
+ org.cloudsmith.geppetto.common;bundle-version="2.0.0",
+ org.cloudsmith.geppetto.forge.api;bundle-version="1.0.0",
+ com.google.gson;bundle-version="2.1.0"
