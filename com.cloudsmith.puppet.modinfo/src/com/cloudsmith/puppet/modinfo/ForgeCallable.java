@@ -12,59 +12,90 @@ package com.cloudsmith.puppet.modinfo;
  */
 
 
-import hudson.FilePath.FileCallable;
-import hudson.remoting.VirtualChannel;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.cloudsmith.geppetto.forge.impl.MetadataImpl;
-import org.cloudsmith.geppetto.forge.v2.Forge;
-import org.cloudsmith.geppetto.forge.v2.client.ForgePreferences;
-import org.eclipse.jgit.storage.file.FileRepository;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+//import org.cloudsmith.geppetto.forge.impl.MetadataImpl;
 
-public abstract class ForgeCallable<T> implements FileCallable<T> {
+public abstract class ForgeCallable {
 	private static final long serialVersionUID = -3048930993120683688L;
 
 	public static final String IMPORTED_MODULES_ROOT = "importedModules";
 
-	public static final String BUILD_DIR = ".geppetto";
-
+	// Directory names that should not be checksummed or copied.
 	public static final Pattern DEFAULT_EXCLUDES_PATTERN;
 
-	static {
-		int top = MetadataImpl.DEFAULT_EXCLUDES.length;
-		String[] excludes = new String[top + 1];
-		System.arraycopy(MetadataImpl.DEFAULT_EXCLUDES, 0, excludes, 0, top);
-		excludes[top] = BUILD_DIR;
-		DEFAULT_EXCLUDES_PATTERN = MetadataImpl.compileExcludePattern(excludes);
-	}
+	// @fmtOff
+	private static final String[] defaultExcludes = {
+		"*~",
+		"#*#",
+		".#*",
+		"%*%",
+		"._*",
+		"CVS",
+		".cvsignore",
+		"SCCS",
+		"vssver.scc",
+		".svn",
+		".DS_Store",
+		".git",
+		".gitattributes",
+		".gitignore",
+		".gitmodules",
+		".hg",
+		".hgignore",
+		".hgsub",
+		".hgsubstate",
+		".hgtags",
+		".bzr",
+		".bzrignore",
+		".project",
+		".settings",
+		".classpath",
+		".bzrignore",
+		"pkg",
+		"coverage"
+	};
+	// @fmtOn
 
-	private transient Forge forge;
+	static {
+		StringBuilder bld = new StringBuilder();
+		bld.append("^(?:");
+		appendExcludePattern(defaultExcludes[0], bld);
+		for(int idx = 1; idx < defaultExcludes.length; ++idx) {
+			bld.append('|');
+			appendExcludePattern(defaultExcludes[idx], bld);
+		}
+		bld.append(")$");
+		DEFAULT_EXCLUDES_PATTERN = Pattern.compile(bld.toString());
+	}
 
 	private transient File repositoryDir;
 
-	private transient File buildDir;
-
-	private transient FileRepository localRepository;
-
-	private ForgePreferences forgePreferences;
-
-	private String repositoryURL;
-
-	private String branchName;
-
-	public ForgeCallable() {
-	}
-
-	public ForgeCallable(ForgePreferences forgePreferences, String repositoryURL, String branchName) {
-		this.forgePreferences = forgePreferences;
-		this.repositoryURL = repositoryURL;
-		this.branchName = branchName;
+	private static void appendExcludePattern(String string, StringBuilder bld) {
+		int top = string.length();
+		for(int idx = 0; idx < top; ++idx) {
+			char c = string.charAt(idx);
+			switch(c) {
+				case '.':
+					bld.append('\\');
+					bld.append(c);
+					break;
+				case '*':
+					bld.append('.');
+					bld.append('*');
+					break;
+				case '?':
+					bld.append('.');
+					break;
+				default:
+					bld.append(c);
+			}
+		}
 	}
 
 	private boolean findModuleFiles(File[] files, List<File> moduleFiles) {
@@ -98,49 +129,14 @@ public abstract class ForgeCallable<T> implements FileCallable<T> {
 		return moduleRoots;
 	}
 
-	public String getBranchName() {
-		return branchName;
-	}
-
-	protected File getBuildDir() {
-		return buildDir;
-	}
-
-	protected synchronized Forge getForge() {
-		if(forge == null)
-			forge = new Forge(forgePreferences);
-		return forge;
-	}
-
-	protected FileRepository getLocalRepository() throws IOException {
-		if(localRepository == null) {
-			File guessGitDir = new File(getRepositoryDir(), ".git");
-			boolean bare = !guessGitDir.isDirectory();
-			FileRepositoryBuilder bld = new FileRepositoryBuilder();
-			if(bare) {
-				bld.setBare();
-				bld.setGitDir(getRepositoryDir());
-			}
-			else
-				bld.setWorkTree(getRepositoryDir());
-			localRepository = bld.setup().build();
-		}
-		return localRepository;
-	}
-
 	protected File getRepositoryDir() {
 		return repositoryDir;
 	}
 
-	public String getRepositoryURL() {
-		return repositoryURL;
-	}
-
-	public final T invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+	public final Map<String, List<String>> invoke(File f) throws IOException, InterruptedException {
 		repositoryDir = f;
-		buildDir = new File(f, BUILD_DIR);
-		return invoke(channel);
+		return invoke();
 	}
 
-	protected abstract T invoke(VirtualChannel channel) throws IOException, InterruptedException;
+	protected abstract Map<String, List<String>> invoke() throws IOException, InterruptedException;
 }
