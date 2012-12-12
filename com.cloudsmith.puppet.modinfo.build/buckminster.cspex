@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cs:cspecExtension xmlns:com="http://www.eclipse.org/buckminster/Common-1.0" xmlns:cs="http://www.eclipse.org/buckminster/CSpec-1.0">
+	<cs:actions>
+		<cs:public name="site.product" actor="ant">
+			<cs:actorProperties>
+				<cs:property key="buildFile" value="product.ant" />
+				<cs:property key="targets" value="create.site.product" />
+			</cs:actorProperties>
+			<cs:prerequisites>
+				<cs:attribute name="site.p2" alias="base" />
+				<cs:attribute component="com.cloudsmith.puppet.modinfo.product" name="site.config" alias="configuration" />
+			</cs:prerequisites>
+			<cs:products base="${buckminster.output}/site.product" alias="output" />
+		</cs:public>
+
+		<cs:public name="product" actor="ant">
+			<cs:actorProperties>
+				<cs:property key="buildFile" value="product.ant" />
+				<cs:property key="targets" value="build.product" />
+			</cs:actorProperties>
+			<cs:properties>
+				<cs:property key="product.iu" value="com.cloudsmith.puppet.modinfo.product" />
+				<cs:property key="product.config.comment" value="Puppet Module Discoverer framework configuration" />
+			</cs:properties>
+			<cs:prerequisites>
+				<cs:attribute name="site.product" alias="repository" />
+			</cs:prerequisites>
+			<cs:products base="${buckminster.output}/modinfo" alias="destination" />
+		</cs:public>
+	</cs:actions>
+</cs:cspecExtension>

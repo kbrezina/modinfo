@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+# This script will launch the Equinox framework
+#
+# usage:
+#   <script name> [ -vm <java binary> ] <command> <command opts> [ -vmargs <vmargs> ]
+#
+# Alternatively, you bypass this script and instead use:
+#   <java binary> <vmargs> -jar <equinox launcher jar> <command> <command opts>
+#
+
+EXE_DIR="`dirname "$0"`"
+EQUINOXJAR="`ls -tr "$EXE_DIR"/plugins/org.eclipse.equinox.launcher_*.jar | head -1`"
+
+VM=java
+COUNT=$#
+
+set -- "$@" -jar "$EQUINOXJAR"
+
+while [ $COUNT -gt 0 ]; do
+	ARG="$1"
+	shift
+	case "$ARG" in
+		'-vm')
+			if [ $COUNT -lt 2 ]; then
+				echo "$0: Missing argument for -vm option" >&2
+				exit 2
+			fi
+			VM="$1"
+			shift
+			let COUNT=COUNT-2
+			;;
+		'-vmargs')
+			# remaining arguments are vmargs
+			break
+			;;
+		*)
+			# normal argument - move it to the end of the argument list 
+			set -- "$@" "$ARG"
+			let COUNT=COUNT-1
+			;;
+	esac
+done
+
+exec "$VM" "$@"

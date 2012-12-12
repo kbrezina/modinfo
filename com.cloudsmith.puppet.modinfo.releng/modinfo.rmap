@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rm:rmap xmlns:bc="http://www.eclipse.org/buckminster/Common-1.0"
+	xmlns:rm="http://www.eclipse.org/buckminster/RMap-1.0">
+	<rm:property key="eclipse.download" value="http://download.eclipse.org" />
+	<rm:locator pattern="^com\.cloudsmith\.puppet\.modinfo(?:\..+)?$" searchPathRef="modinfo"/> -->
+	<rm:locator pattern="^org\.apache(?:\..+)?$" searchPathRef="orbit"
+		failOnError="false" />
+	<rm:locator pattern="^org\.kohsuke\.args4j$" searchPathRef="orbit" />
+	<rm:locator pattern="^javax\.xml$" searchPathRef="orbit" />
+	<rm:locator pattern="^com\.cloudsmith\.hammer(\..+)?$"
+		searchPathRef="hammer" />
+	<rm:locator pattern="^com\.cloudsmith\.sqlite(\..+)?$"
+		searchPathRef="hammer" />
+	<rm:locator pattern="^com\.cloudsmith\.hazelcast(\..+)?$"
+		searchPathRef="hammer" />
+	<rm:locator pattern="^org\.eclipse\.emf\.gwt(\..+)?$"
+		searchPathRef="hammer" />
+	<rm:locator pattern="^org\.apache\.commons\.compress(\..+)?$"
+		searchPathRef="commons-compress" />
+	<rm:locator pattern="^org\.jrubyparser(\..+)?$"
+		searchPathRef="jrubyparser" />
+	<rm:locator pattern="^org\.cloudsmith\.geppetto(\..+)?$"
+		searchPathRef="geppetto" />
+	<rm:locator pattern="^org\.cloudsmith\.graph(\..+)?$"
+		searchPathRef="graph" />
+	<rm:locator searchPathRef="orbit" failOnError="false" />
+	<rm:locator searchPathRef="platform" failOnError="false" />
+	<rm:locator searchPathRef="juno" failOnError="false" />
+
+	<rm:searchPath name="modinfo">
+		<rm:provider componentTypes="osgi.bundle,eclipse.feature,buckminster"
+			readerType="git" source="true">
+			<rm:property key="git.remote.uri" value="git@github.com:kbrezina/modinfo.git" />
+			<rm:uri format="{0}/{1},{2}">
+				<bc:propertyRef key="releng.clone.root" />
+				<bc:propertyRef key="hammer.clone" />
+				<bc:propertyRef key="buckminster.component" />
+			</rm:uri>
+		</rm:provider>
+	</rm:searchPath>
+
+	<rm:searchPath name="orbit">
+		<rm:provider componentTypes="eclipse.feature,osgi.bundle"
+			readerType="p2" source="false" mutable="false">
+			<rm:property key="buckminster.source" value="false" />
+			<rm:property key="buckminster.mutable" value="false" />
+			<rm:uri format="{0}/tools/orbit/downloads/drops/R20120526062928/repository">
+				<bc:propertyRef key="eclipse.download" />
+			</rm:uri>
+		</rm:provider>
+	</rm:searchPath>
+
+	<rm:searchPath name="platform">
+		<rm:provider componentTypes="osgi.bundle,eclipse.feature"
+			readerType="p2" source="false">
+			<rm:uri format="{0}/eclipse/updates/4.2/R-4.2-201206081400">
+				<bc:propertyRef key="eclipse.download.prefix" />
+			</rm:uri>
+		</rm:provider>
+	</rm:searchPath>
+
+	<rm:searchPath name="juno">
+		<rm:provider componentTypes="osgi.bundle,eclipse.feature"
+			readerType="p2" source="false">
+			<rm:uri format="{0}/releases/juno/201206270900/">
+				<bc:propertyRef key="eclipse.download.prefix" />
+			</rm:uri>
+		</rm:provider>
+	</rm:searchPath>
+
+	<rm:searchPath name="hammer">
+		<rm:provider componentTypes="osgi.bundle,eclipse.feature,buckminster"
+			readerType="git" source="true">
+			<rm:property key="git.remote.uri" value="${cloudsmith.git.prefix}/hammer.git" />
+			<rm:uri format="{0}/{1},{2}">
+				<bc:propertyRef key="releng.clone.root" />
+				<bc:propertyRef key="hammer.clone" />
+				<bc:propertyRef key="buckminster.component" />
+			</rm:uri>
+		</rm:provider>
+	</rm:searchPath>
+
+	<rm:searchPath name="geppetto">
+		<rm:provider componentTypes="osgi.bundle,eclipse.feature,buckminster"
+			readerType="git">
+			<rm:property key="git.remote.uri" value="${cloudsmith.git.prefix}/geppetto.git" />
+			<rm:uri format="{0}/geppetto,{1}">
+				<bc:propertyRef key="git.clones.root" />
+				<bc:propertyRef key="buckminster.component" />
+			</rm:uri>
+		</rm:provider>
+	</rm:searchPath>
+
+	<rm:searchPath name="graph">
+		<rm:provider componentTypes="osgi.bundle,eclipse.feature"
+			readerType="git">
+			<rm:property key="git.remote.uri" value="${cloudsmith.git.prefix}/graph.git" />
+			<rm:uri format="{0}/graph,{1}">
+				<bc:propertyRef key="git.clones.root" />
+				<bc:propertyRef key="buckminster.component" />
+			</rm:uri>
+		</rm:provider>
+	</rm:searchPath>
+
+	<rm:searchPath name="commons-compress">
+		<rm:provider componentTypes="osgi.bundle" readerType="git"
+			source="true">
+			<rm:property key="git.remote.uri"
+				value="${cloudsmith.git.prefix}/commons-compress.git" />
+			<rm:uri format="{0}/org.apache.commons.compress">
+				<bc:propertyRef key="git.clones.root" />
+			</rm:uri>
+		</rm:provider>
+	</rm:searchPath>
+
+	<rm:searchPath name="jrubyparser">
+		<rm:provider componentTypes="osgi.bundle" readerType="git"
+			source="true">
+			<rm:property key="git.remote.uri"
+				value="${cloudsmith.git.prefix}/jruby-parser.git" />
+			<rm:uri format="{0}/jruby-parser">
+				<bc:propertyRef key="git.clones.root" />
+			</rm:uri>
+		</rm:provider>
+	</rm:searchPath>
+
+	<rm:property key="cloudsmith.git.prefix" value="git@github.com:cloudsmith" />
+
+	<rm:property key="eclipse.download.prefix" value="http://download.eclipse.org" />
+
+	<rm:property key="hammer.clone" value="hammer" />
+	<rm:property key="git.clones.root" value="${user.home}/git" />
+	<rm:property key="releng.clone.root" value="${git.clones.root}" />
+</rm:rmap>

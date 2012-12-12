@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?><cq:componentQuery xmlns:cq="http://www.eclipse.org/buckminster/CQuery-1.0" resourceMap="modinfo.rmap">
+    <cq:rootRequest name="com.cloudsmith.puppet.modinfo.product" componentType="eclipse.feature"/>
+    <cq:property key="buckminster.convert.source" value="true"/>
+    <cq:property key="buckminster.download.source" value="true"/>
+    <cq:property key="target.arch" value="*"/>
+    <cq:property key="target.os" value="*"/>
+    <cq:property key="target.ws" value="*"/>
+    <cq:advisorNode namePattern="org\.cloudsmith\.geppetto\..*" branchTagPath="forge-development"/>
+    <cq:advisorNode namePattern="com\.cloudsmith\.hammer\..*" branchTagPath="forge-development"/>
+</cq:componentQuery>

@@ -1,0 +1,193 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='Puppet Labs Module Discoverer Configuration Metadata' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+	<units>
+		<unit id='configure.com.cloudsmith.puppet.modinfo.product' version='1.0.0'>
+			<provides>
+				<provided namespace='org.eclipse.equinox.p2.iu' name='configure.com.cloudsmith.puppet.modinfo.product' version='1.0.0' />
+			</provides>
+			<requires>
+				<!--
+					Since we use the org.eclipse.update.configurator to discover bundles we don't need to "install"
+					them to be included in the osgi.bundles list in the config.ini file.
+				<required namespace='org.eclipse.equinox.p2.iu' name='configure.osgi.bundle.default' range='1.0.0' />
+				-->
+				<required namespace='org.eclipse.equinox.p2.iu' name='configure.org.eclipse.osgi' range='1.0.0' />
+				<required namespace='org.eclipse.equinox.p2.iu' name='configure.org.eclipse.equinox.common' range='1.0.0' />
+				<required namespace='org.eclipse.equinox.p2.iu' name='configure.org.eclipse.update.configurator' range='1.0.0' />
+				<required namespace='org.eclipse.equinox.p2.iu' name='configure.org.eclipse.core.runtime' range='1.0.0' />
+				<required namespace='org.eclipse.equinox.p2.iu' name='configure.org.eclipse.equinox.app' range='1.0.0' />
+			</requires>
+			<touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0' />
+			<touchpointData>
+				<instructions>
+					<instruction key='unconfigure'>
+						setProgramProperty(propName:eclipse.application,propValue:);
+					</instruction>
+					<instruction key='configure'>
+						setProgramProperty(propName:eclipse.application,propValue:com.cloudsmith.puppet.modinfo.cli.Launcher);
+					</instruction>
+				</instructions>
+			</touchpointData>
+		</unit>
+		<unit id='configure.org.eclipse.osgi' version='1.0.0' singleton='false'>
+			<hostRequirements>
+				<required namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' range='0.0.0' greedy='false' />
+				<required namespace='osgi.bundle' name='org.eclipse.osgi' range='0.0.0' greedy='false' />
+			</hostRequirements>
+			<properties>
+				<property name='org.eclipse.equinox.p2.type.fragment' value='true' />
+			</properties>
+			<provides>
+				<provided namespace='org.eclipse.equinox.p2.iu' name='configure.org.eclipse.osgi' version='1.0.0' />
+			</provides>
+			<requires>
+				<required namespace='osgi.bundle' name='org.eclipse.osgi' range='0.0.0' greedy='false' />
+				<required namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' range='0.0.0' greedy='false' />
+			</requires>
+			<touchpoint id='null' version='0.0.0' />
+			<touchpointData>
+				<instructions>
+					<instruction key='install'>
+						installBundle(bundle:${artifact});
+					</instruction>
+					<instruction key='uninstall'>
+						uninstallBundle(bundle:${artifact});
+					</instruction>
+				</instructions>
+			</touchpointData>
+		</unit>
+		<unit id='configure.org.eclipse.equinox.common' version='1.0.0' singleton='false'>
+			<hostRequirements>
+				<required namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' range='0.0.0' greedy='false' />
+				<required namespace='osgi.bundle' name='org.eclipse.equinox.common' range='0.0.0' greedy='false' />
+			</hostRequirements>
+			<properties>
+				<property name='org.eclipse.equinox.p2.type.fragment' value='true' />
+			</properties>
+			<provides>
+				<provided namespace='org.eclipse.equinox.p2.iu' name='configure.org.eclipse.equinox.common' version='1.0.0' />
+			</provides>
+			<requires>
+				<required namespace='osgi.bundle' name='org.eclipse.equinox.common' range='0.0.0' greedy='false' />
+				<required namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' range='0.0.0' greedy='false' />
+			</requires>
+			<touchpoint id='null' version='0.0.0' />
+			<touchpointData>
+				<instructions>
+					<instruction key='install'>
+						installBundle(bundle:${artifact});
+					</instruction>
+					<instruction key='uninstall'>
+						uninstallBundle(bundle:${artifact});
+					</instruction>
+					<instruction key='unconfigure'>
+						setStartLevel(startLevel:-1); markStarted(started:false);
+					</instruction>
+					<instruction key='configure'>
+						setStartLevel(startLevel:2); markStarted(started:true);
+					</instruction>
+				</instructions>
+			</touchpointData>
+		</unit>
+		<unit id='configure.org.eclipse.update.configurator' version='1.0.0' singleton='false'>
+			<hostRequirements>
+				<required namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' range='0.0.0' greedy='false' />
+				<required namespace='osgi.bundle' name='org.eclipse.update.configurator' range='0.0.0' greedy='false' />
+			</hostRequirements>
+			<properties>
+				<property name='org.eclipse.equinox.p2.type.fragment' value='true' />
+			</properties>
+			<provides>
+				<provided namespace='org.eclipse.equinox.p2.iu' name='configure.org.eclipse.update.configurator' version='1.0.0' />
+			</provides>
+			<requires>
+				<required namespace='osgi.bundle' name='org.eclipse.update.configurator' range='0.0.0' greedy='false' />
+				<required namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' range='0.0.0' greedy='false' />
+			</requires>
+			<touchpoint id='null' version='0.0.0' />
+			<touchpointData>
+				<instructions>
+					<instruction key='install'>
+						installBundle(bundle:${artifact});
+					</instruction>
+					<instruction key='uninstall'>
+						uninstallBundle(bundle:${artifact});
+					</instruction>
+					<instruction key='unconfigure'>
+						setStartLevel(startLevel:-1); markStarted(started:false);
+					</instruction>
+					<instruction key='configure'>
+						setStartLevel(startLevel:3); markStarted(started:true);
+					</instruction>
+				</instructions>
+			</touchpointData>
+		</unit>
+		<unit id='configure.org.eclipse.core.runtime' version='1.0.0' singleton='false'>
+			<hostRequirements>
+				<required namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' range='0.0.0' greedy='false' />
+				<required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0' greedy='false' />
+			</hostRequirements>
+			<properties>
+				<property name='org.eclipse.equinox.p2.type.fragment' value='true' />
+			</properties>
+			<provides>
+				<provided namespace='org.eclipse.equinox.p2.iu' name='configure.org.eclipse.core.runtime' version='1.0.0' />
+			</provides>
+			<requires>
+				<required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0' greedy='false' />
+				<required namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' range='0.0.0' greedy='false' />
+			</requires>
+			<touchpoint id='null' version='0.0.0' />
+			<touchpointData>
+				<instructions>
+					<instruction key='install'>
+						installBundle(bundle:${artifact});
+					</instruction>
+					<instruction key='uninstall'>
+						uninstallBundle(bundle:${artifact});
+					</instruction>
+					<instruction key='unconfigure'>
+						setStartLevel(startLevel:-1); markStarted(started:false);
+					</instruction>
+					<instruction key='configure'>
+						setStartLevel(startLevel:4); markStarted(started:true);
+					</instruction>
+				</instructions>
+			</touchpointData>
+		</unit>
+		<unit id='configure.org.eclipse.equinox.app' version='1.0.0' singleton='false'>
+			<hostRequirements>
+				<required namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' range='0.0.0' greedy='false' />
+				<required namespace='osgi.bundle' name='org.eclipse.equinox.app' range='0.0.0' greedy='false' />
+			</hostRequirements>
+			<properties>
+				<property name='org.eclipse.equinox.p2.type.fragment' value='true' />
+			</properties>
+			<provides>
+				<provided namespace='org.eclipse.equinox.p2.iu' name='configure.org.eclipse.equinox.app' version='1.0.0' />
+			</provides>
+			<requires>
+				<required namespace='osgi.bundle' name='org.eclipse.equinox.app' range='0.0.0' greedy='false' />
+				<required namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' range='0.0.0' greedy='false' />
+			</requires>
+			<touchpoint id='null' version='0.0.0' />
+			<touchpointData>
+				<instructions>
+					<instruction key='install'>
+						installBundle(bundle:${artifact});
+					</instruction>
+					<instruction key='uninstall'>
+						uninstallBundle(bundle:${artifact});
+					</instruction>
+					<instruction key='unconfigure'>
+						markStarted(started:false);
+					</instruction>
+					<instruction key='configure'>
+						markStarted(started:true);
+					</instruction>
+				</instructions>
+			</touchpointData>
+		</unit>
+	</units>
+</repository>

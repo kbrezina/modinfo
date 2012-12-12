@@ -1,0 +1,75 @@
+<project name="Product">
+	<target name="create.site.product">
+		<buckminster.copy todir="${sp:output}">
+			<buckminster.filesetgroup value="${fs:base}" />
+		</buckminster.copy>
+		<p2.metadata.mirror destination="file:${sp:output}" source="${sp:configuration}" />
+		<buckminster.publishJRE repository="file:${sp:output}" compress="true" />
+	</target>
+
+	<target name="build.product">
+		<!-- set defaults -->
+		<property name="target.arch" value="*" />
+		<property name="target.os" value="*" />
+		<property name="target.ws" value="*" />
+
+		<property name="product.arch" value="${target.arch}" />
+		<property name="product.os" value="${target.os}" />
+		<property name="product.ws" value="${target.ws}" />
+
+		<delete dir="${sp:destination}" />
+		<mkdir dir="${sp:destination}" />
+
+		<p2.director metadatarepository="file:${sp:repository}" artifactrepository="file:${sp:repository}" destination="${sp:destination}" profile="Product" arch="${product.arch}" os="${product.os}" ws="${product.ws}" roaming="true">
+			<iu id="${product.iu}" />
+		</p2.director>
+
+		<!-- this application can do without the P2 bits -->
+		<delete dir="${sp:destination}" includeemptydirs="true">
+			<or>
+				<filename name="p2/**" />
+				<filename name="artifacts.xml" />
+			</or>
+		</delete>
+		<!-- delete also P2 properties from the config.ini file -->
+		<property name="config.ini" location="${sp:destination}/configuration/config.ini" />
+		<property name="config.ini.properties.prefix" value="config.ini.property." />
+		<property file="${config.ini}" prefix="${config.ini.properties.prefix}" />
+		<antcall target="-massage.config.ini" inheritall="false">
+			<propertyset>
+				<propertyref name="config.ini" />
+				<propertyref name="config.ini.properties.prefix" />
+			</propertyset>
+			<propertyset>
+				<propertyref prefix="${config.ini.properties.prefix}" />
+				<regexpmapper from="^((?:.+\.)?p2(?:\..+)?)$" to="filtered.\1" />
+			</propertyset>
+		</antcall>
+	</target>
+
+	<target name="-massage.config.ini">
+		<property name="config.ini.filtered" location="${config.ini}.filtered" />
+		<property name="config.ini.comment" location="${config.ini}.comment" />
+		<echoproperties destfile="${config.ini.filtered}">
+			<propertyset>
+				<propertyref prefix="${config.ini.properties.prefix}" />
+				<globmapper from="${config.ini.properties.prefix}*" to="*" />
+			</propertyset>
+		</echoproperties>
+		<property name="product.config.comment" value="Framework configuration" />
+		<echo message="# ${product.config.comment}${line.separator}" file="${config.ini.comment}" />
+		<copy file="${config.ini.filtered}" tofile="${config.ini}">
+			<filterchain>
+				<striplinecomments>
+					<comment value="#" />
+				</striplinecomments>
+				<concatfilter prepend="${config.ini.comment}" />
+			</filterchain>
+		</copy>
+		<dirname property="config.ini.directory" file="${config.ini}" />
+		<basename property="config.ini.basename" file="${config.ini}" />
+		<delete dir="${config.ini.directory}">
+			<filename name="${config.ini.basename}.*" />
+		</delete>
+	</target>
+</project>

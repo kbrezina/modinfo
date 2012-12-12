@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.cloudsmith.puppet.modinfo.build"
+      label="Puppet Module Discoverer Build Feature"
+      version="1.0.0.qualifier"
+      provider-name="Puppet Labs Inc.">
+
+   <description>
+      Feature for driving the build of Puppet Labs Module Discoverer
+   </description>
+
+   <copyright url="COPYRIGHT">
+      Puppet Labs, Inc.
+   </copyright>
+
+   <includes
+         id="com.cloudsmith.puppet.modinfo.product"
+         version="0.0.0"/>
+
+</feature>

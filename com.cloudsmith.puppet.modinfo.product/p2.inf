@@ -1,0 +1,26 @@
+# create a product IU, depending on this feature and a product configuration unit (CU)
+# which is defined in the configuration metadata (in the configuration subdirectory)
+
+units.0.id = com.cloudsmith.puppet.modinfo.product
+units.0.version = $version$
+units.0.singleton = true
+units.0.update.id = com.cloudsmith.puppet.modinfo.product
+units.0.update.range = [0.0.0,$version$)
+
+units.0.properties.0.name = org.eclipse.equinox.p2.name
+units.0.properties.0.value = PuppetModuleDiscoverer
+units.0.properties.1.name = org.eclipse.equinox.p2.type.group
+units.0.properties.1.value = true
+
+units.0.provides.0.namespace = org.eclipse.equinox.p2.iu
+units.0.provides.0.name = com.cloudsmith.puppet.modinfo.product
+units.0.provides.0.version = $version$
+
+units.0.requires.0.namespace = org.eclipse.equinox.p2.iu
+units.0.requires.0.name = com.cloudsmith.puppet.modinfo.product.feature.group
+units.0.requires.0.range = [$version$,$version$]
+units.0.requires.0.greedy = true
+units.0.requires.1.namespace = org.eclipse.equinox.p2.iu
+units.0.requires.1.name = configure.com.cloudsmith.puppet.modinfo.product
+units.0.requires.1.range = 1.0.0
+units.0.requires.1.greedy = true
