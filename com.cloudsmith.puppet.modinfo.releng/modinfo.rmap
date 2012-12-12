@@ -2,7 +2,10 @@
 <rm:rmap xmlns:bc="http://www.eclipse.org/buckminster/Common-1.0"
 	xmlns:rm="http://www.eclipse.org/buckminster/RMap-1.0">
 	<rm:property key="eclipse.download" value="http://download.eclipse.org" />
-	<rm:locator pattern="^com\.cloudsmith\.puppet\.modinfo(?:\..+)?$" searchPathRef="modinfo"/> -->
+	<rm:locator pattern="^com\.cloudsmith\.hammer\.puppet\.validation$"
+		searchPathRef="modinfo" />
+	<rm:locator pattern="^com\.cloudsmith\.puppet\.modinfo(?:\..+)?$"
+		searchPathRef="modinfo" />
 	<rm:locator pattern="^org\.apache(?:\..+)?$" searchPathRef="orbit"
 		failOnError="false" />
 	<rm:locator pattern="^org\.kohsuke\.args4j$" searchPathRef="orbit" />
@@ -19,6 +22,8 @@
 		searchPathRef="commons-compress" />
 	<rm:locator pattern="^org\.jrubyparser(\..+)?$"
 		searchPathRef="jrubyparser" />
+	<rm:locator pattern="^org\.cloudsmith\.geppetto\.pp\.dsl$"
+		searchPathRef="modinfo" />
 	<rm:locator pattern="^org\.cloudsmith\.geppetto(\..+)?$"
 		searchPathRef="geppetto" />
 	<rm:locator pattern="^org\.cloudsmith\.graph(\..+)?$"
