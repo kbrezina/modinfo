@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" copyrightText="Copyright (c) 2011 Cloudsmith Inc. and other contributors, as listed below.&#xA;All rights reserved. This program and the accompanying materials&#xA;are made available under the terms of the Eclipse Public License v1.0&#xA;which accompanies this distribution, and is available at&#xA;http://www.eclipse.org/legal/epl-v10.html&#xA;&#xA;Contributors:&#xA;  Cloudsmith&#xA;"
+    modelDirectory="/com.cloudsmith.hammer.puppet.validation/src" editDirectory=""
+    editorDirectory="" modelPluginID="com.cloudsmith.hammer.puppet.validation" modelName="Validation"
+    editPluginClass="com.cloudsmith.hammer.puppet.validation.provider.ValidationEditPlugin"
+    testsDirectory="" importerID="org.eclipse.emf.importer.ecore" complianceLevel="6.0"
+    copyrightFields="false" editorPluginID="com.cloudsmith.hammer.puppet.validation.edit">
+  <foreignModel>Validation.ecore</foreignModel>
+  <genPackages prefix="Validation" basePackage="com.cloudsmith.hammer.puppet" disposableProviderFactory="true"
+      ecorePackage="Validation.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="Validation.ecore#//ValidationServiceDiagnosticCode">
+      <genEnumLiterals ecoreEnumLiteral="Validation.ecore#//ValidationServiceDiagnosticCode/GEPPETTO"/>
+      <genEnumLiterals ecoreEnumLiteral="Validation.ecore#//ValidationServiceDiagnosticCode/GEPPETTO_SYNTAX"/>
+      <genEnumLiterals ecoreEnumLiteral="Validation.ecore#//ValidationServiceDiagnosticCode/CATALOG_PARSER"/>
+      <genEnumLiterals ecoreEnumLiteral="Validation.ecore#//ValidationServiceDiagnosticCode/CATALOG"/>
+      <genEnumLiterals ecoreEnumLiteral="Validation.ecore#//ValidationServiceDiagnosticCode/FORGE"/>
+      <genEnumLiterals ecoreEnumLiteral="Validation.ecore#//ValidationServiceDiagnosticCode/UNKNOWN"/>
+      <genEnumLiterals ecoreEnumLiteral="Validation.ecore#//ValidationServiceDiagnosticCode/INTERNAL_ERROR"/>
+    </genEnums>
+    <genDataTypes ecoreDataType="Validation.ecore#//File"/>
+    <genDataTypes ecoreDataType="Validation.ecore#//Throwable"/>
+    <genDataTypes ecoreDataType="Validation.ecore#//StringArray"/>
+    <genClasses ecoreClass="Validation.ecore#//ValidationService">
+      <genOperations ecoreOperation="Validation.ecore#//ValidationService/validateManifest">
+        <genParameters ecoreParameter="Validation.ecore#//ValidationService/validateManifest/diagnostics"/>
+        <genParameters ecoreParameter="Validation.ecore#//ValidationService/validateManifest/code"/>
+      </genOperations>
+      <genOperations ecoreOperation="Validation.ecore#//ValidationService/validateManifest.1">
+        <genParameters ecoreParameter="Validation.ecore#//ValidationService/validateManifest.1/diagnostics"/>
+        <genParameters ecoreParameter="Validation.ecore#//ValidationService/validateManifest.1/sourceFile"/>
+      </genOperations>
+      <genOperations ecoreOperation="Validation.ecore#//ValidationService/validateModule">
+        <genParameters ecoreParameter="Validation.ecore#//ValidationService/validateModule/diagnostics"/>
+        <genParameters ecoreParameter="Validation.ecore#//ValidationService/validateModule/moduleDirectory"/>
+      </genOperations>
+      <genOperations ecoreOperation="Validation.ecore#//ValidationService/validateRepository">
+        <genParameters ecoreParameter="Validation.ecore#//ValidationService/validateRepository/diagnostics"/>
+        <genParameters ecoreParameter="Validation.ecore#//ValidationService/validateRepository/catalogRoot"/>
+      </genOperations>
+      <genOperations ecoreOperation="Validation.ecore#//ValidationService/validateRepository.1">
+        <genParameters ecoreParameter="Validation.ecore#//ValidationService/validateRepository.1/diagnostics"/>
+        <genParameters ecoreParameter="Validation.ecore#//ValidationService/validateRepository.1/catalogRoot"/>
+        <genParameters ecoreParameter="Validation.ecore#//ValidationService/validateRepository.1/factorData"/>
+        <genParameters ecoreParameter="Validation.ecore#//ValidationService/validateRepository.1/siteFile"/>
+        <genParameters ecoreParameter="Validation.ecore#//ValidationService/validateRepository.1/nodeName"/>
+      </genOperations>
+    </genClasses>
+    <genClasses ecoreClass="Validation.ecore#//DiagnosticData">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Validation.ecore#//DiagnosticData/file"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Validation.ecore#//DiagnosticData/lineNumber"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Validation.ecore#//DiagnosticData/node"/>
+    </genClasses>
+    <genClasses ecoreClass="Validation.ecore#//DetailedDiagnosticData">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Validation.ecore#//DetailedDiagnosticData/offset"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Validation.ecore#//DetailedDiagnosticData/length"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Validation.ecore#//DetailedDiagnosticData/issue"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Validation.ecore#//DetailedDiagnosticData/issueData"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

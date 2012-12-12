@@ -1,0 +1,61 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.cloudsmith.hammer</groupId>
+	<artifactId>com.cloudsmith.hammer.puppet.validation</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>Stack Hammer Puppet Validation</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<packaging>jar</packaging>
+
+	<organization>
+		<name>Cloudsmith Inc.</name>
+		<url>http://www.cloudsmith.com</url>
+	</organization>
+
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.5.1</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<debug>true</debug>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>13.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.cloudsmith.geppetto</groupId>
+			<artifactId>org.cloudsmith.geppetto.catalog</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.cloudsmith.geppetto</groupId>
+			<artifactId>org.cloudsmith.geppetto.forge</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.cloudsmith.geppetto</groupId>
+			<artifactId>org.cloudsmith.geppetto.pp.dsl</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.cloudsmith.graph</groupId>
+			<artifactId>org.cloudsmith.graph</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+</project>
