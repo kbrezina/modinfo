@@ -12,7 +12,7 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
-import com.cloudsmith.puppet.modinfo.ForgeValidatorCallable;
+import com.cloudsmith.puppet.modinfo.ModuleAnalyzer;
 
 public class Launcher implements IApplication {
 
@@ -69,9 +69,9 @@ public class Launcher implements IApplication {
 			String[] locations = location.split(":");
 
 			for(String loc : locations) {
-				System.out.println("Location: " + location);
+				System.out.println("Location: " + loc);
 
-				Map<String, List<String>> classMap = new ForgeValidatorCallable().invoke(new File(loc));
+				Map<String, List<String>> classMap = new ModuleAnalyzer().invoke(new File(loc));
 				printResults(classMap);
 			}
 		}
