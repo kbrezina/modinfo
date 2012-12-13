@@ -23,14 +23,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
+
 import org.cloudsmith.geppetto.common.os.StreamUtil.OpenBAStream;
-//import org.cloudsmith.geppetto.forge.v2.MetadataRepository;
-//import org.cloudsmith.geppetto.forge.v2.client.ForgePreferences;
-//import org.cloudsmith.geppetto.forge.v2.model.Dependency;
-//import org.cloudsmith.geppetto.forge.v2.model.Metadata;
-//import org.cloudsmith.geppetto.forge.v2.model.Module;
-//import org.cloudsmith.geppetto.forge.v2.model.Release;
-//import org.cloudsmith.geppetto.forge.v2.service.ReleaseService;
 import org.cloudsmith.geppetto.pp.dsl.PPStandaloneSetup;
 import org.cloudsmith.geppetto.pp.dsl.target.PptpResourceUtil;
 import org.cloudsmith.geppetto.pp.dsl.validation.DefaultPotentialProblemsAdvisor;
@@ -51,17 +46,94 @@ import com.cloudsmith.hammer.puppet.validation.ValidationFactory;
 import com.cloudsmith.hammer.puppet.validation.ValidationOptions;
 import com.cloudsmith.hammer.puppet.validation.ValidationServiceDiagnosticCode;
 import com.cloudsmith.hammer.puppet.validation.graphs.SVGProducer;
+import com.cloudsmith.hammer.puppet.validation.runner.AllModuleReferences;
 import com.cloudsmith.hammer.puppet.validation.runner.AllModuleReferences.ClassDescription;
 import com.cloudsmith.hammer.puppet.validation.runner.AllModuleReferences.Export;
-import com.cloudsmith.hammer.puppet.validation.runner.AllModuleReferences;
 import com.cloudsmith.hammer.puppet.validation.runner.BuildResult;
 import com.cloudsmith.hammer.puppet.validation.runner.IEncodingProvider;
 import com.google.common.collect.Multimap;
 
-public class ForgeValidatorCallable extends ForgeCallable {
-	private static final long serialVersionUID = -2352185785743765350L;
+//import org.cloudsmith.geppetto.forge.impl.MetadataImpl;
+
+public class ModuleAnalyzer {
+	@SuppressWarnings("unused")
+	private static final long serialVersionUID = -3048930993120683688L;
+
+	public static final String IMPORTED_MODULES_ROOT = "importedModules";
+
+	// Directory names that should not be checksummed or copied.
+	public static final Pattern DEFAULT_EXCLUDES_PATTERN;
+
+	// @fmtOff
+	private static final String[] defaultExcludes = {
+		"*~",
+		"#*#",
+		".#*",
+		"%*%",
+		"._*",
+		"CVS",
+		".cvsignore",
+		"SCCS",
+		"vssver.scc",
+		".svn",
+		".DS_Store",
+		".git",
+		".gitattributes",
+		".gitignore",
+		".gitmodules",
+		".hg",
+		".hgignore",
+		".hgsub",
+		".hgsubstate",
+		".hgtags",
+		".bzr",
+		".bzrignore",
+		".project",
+		".settings",
+		".classpath",
+		".bzrignore",
+		"pkg",
+		"coverage"
+	};
+	// @fmtOn
+
+	static {
+		StringBuilder bld = new StringBuilder();
+		bld.append("^(?:");
+		appendExcludePattern(defaultExcludes[0], bld);
+		for(int idx = 1; idx < defaultExcludes.length; ++idx) {
+			bld.append('|');
+			appendExcludePattern(defaultExcludes[idx], bld);
+		}
+		bld.append(")$");
+		DEFAULT_EXCLUDES_PATTERN = Pattern.compile(bld.toString());
+	}
 
 	private static final Charset UTF_8 = Charset.forName("UTF-8");
+
+	private static void appendExcludePattern(String string, StringBuilder bld) {
+		int top = string.length();
+		for(int idx = 0; idx < top; ++idx) {
+			char c = string.charAt(idx);
+			switch(c) {
+				case '.':
+					bld.append('\\');
+					bld.append(c);
+					break;
+				case '*':
+					bld.append('.');
+					bld.append('*');
+					break;
+				case '?':
+					bld.append('.');
+					break;
+				default:
+					bld.append(c);
+			}
+		}
+	}
+
+	//private transient String repositoryHrefPrefix;
 
 	private static DiagnosticType getDiagnosticType(org.eclipse.emf.common.util.Diagnostic validationDiagnostic) {
 		DiagnosticType type;
@@ -158,10 +230,7 @@ public class ForgeValidatorCallable extends ForgeCallable {
 		return classes;
 	}
 
-	private transient String repositoryHrefPrefix;
-
-	public ForgeValidatorCallable() {
-	}
+	private transient File repositoryDir;
 
 	private Diagnostic convertPuppetLintDiagnostic(File moduleRoot, Issue issue) {
 		Diagnostic diagnostic = new Diagnostic();
@@ -193,6 +262,37 @@ public class ForgeValidatorCallable extends ForgeCallable {
 		diagnostic.setResourcePath(resourcePath);
 		diagnostic.setLocationLabel(locationLabel);
 		return diagnostic;
+	}
+
+	private boolean findModuleFiles(File[] files, List<File> moduleFiles) {
+		if(files != null) {
+			int idx = files.length;
+			while(--idx >= 0)
+				if("Modulefile".equals(files[idx].getName()))
+					return true;
+
+			idx = files.length;
+			while(--idx >= 0) {
+				File file = files[idx];
+				String name = file.getName();
+				if(DEFAULT_EXCLUDES_PATTERN.matcher(name).matches())
+					continue;
+
+				if(findModuleFiles(file.listFiles(), moduleFiles))
+					moduleFiles.add(file);
+			}
+		}
+		return false;
+	}
+
+	protected List<File> findModuleRoots() {
+		// Scan for valid directories containing "Modulefile" files.
+
+		List<File> moduleRoots = new ArrayList<File>();
+		if(findModuleFiles(repositoryDir.listFiles(), moduleRoots))
+			// The repository is a module in itself
+			moduleRoots.add(repositoryDir);
+		return moduleRoots;
 	}
 
 	private Map<String, List<String>> geppettoValidation(List<File> moduleLocations,
@@ -280,6 +380,10 @@ public class ForgeValidatorCallable extends ForgeCallable {
 		return relative.toPortableString();
 	}
 
+	protected File getRepositoryDir() {
+		return repositoryDir;
+	}
+
 	//TODO What's this?
 	private synchronized String getRepositoryHrefPrefix() {
 		return "DUMMY";
@@ -332,8 +436,8 @@ public class ForgeValidatorCallable extends ForgeCallable {
 		return options;
 	}
 
-	@Override
-	public Map<String, List<String>> invoke() throws IOException, InterruptedException {
+	public final Map<String, List<String>> invoke(File f) throws IOException, InterruptedException {
+		repositoryDir = f;
 
 		ResultWithDiagnostic<byte[]> result = new ResultWithDiagnostic<byte[]>();
 		List<File> moduleRoots = findModuleRoots();

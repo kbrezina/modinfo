@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -884,10 +885,13 @@ public class ValidationServiceImpl extends EObjectImpl implements ValidationServ
 				checkPuppetRootLayout(diagnostics, root, root);
 		}
 
+		//TODO For module discovery only PP and MD files are processed, the code was not deleted for the case it's needed in future
 		List<File> ppFiles = findPPFiles(root);
-		List<File> rbFiles = findRubyFiles(root);
+		//List<File> rbFiles = findRubyFiles(root);
+		List<File> rbFiles = Collections.emptyList();
 		List<File> mdFiles = findModulefileFiles(root);
-		List<File> rakeFiles = findRakefiles(root);
+		//List<File> rakeFiles = findRakefiles(root);
+		List<File> rakeFiles = Collections.emptyList();
 
 		final int workload = ppFiles.size() + mdFiles.size() * 3 + rbFiles.size() * 2 //
 				+ rakeFiles.size() * 2 //
