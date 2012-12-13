@@ -1,6 +1,8 @@
 package com.cloudsmith.puppet.modinfo.cli;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 
@@ -14,27 +16,64 @@ import com.cloudsmith.puppet.modinfo.ForgeValidatorCallable;
 
 public class Launcher implements IApplication {
 
-	@Option(name = "--location", required = true, usage = "Location", metaVar = "<folder>")
+	@Option(name = "--location", required = false, usage = "Location", metaVar = "<folder>[:<folder>]*")
 	private String location;
 
 	private void printResults(Map<String, List<String>> classMap) {
 		for(Map.Entry<String, List<String>> moduleEntry : classMap.entrySet()) {
-			System.out.println("Module: " + moduleEntry.getKey());
+			System.out.println("    Module: " + moduleEntry.getKey());
 
 			for(String className : moduleEntry.getValue())
-				System.out.println("    Class: " + className);
+				System.out.println("        Class: " + className);
 		}
 	}
 
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
+
 		String args[] = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
 		CmdLineParser optionParser = new CmdLineParser(this);
 		try {
 			optionParser.parseArgument(args);
-			System.out.println("Location: " + location);
-			Map<String, List<String>> classMap = new ForgeValidatorCallable().invoke(new File(location));
-			printResults(classMap);
+
+			if(location == null) {
+				Process p = Runtime.getRuntime().exec("puppet --configprint modulepath");
+				p.waitFor();
+
+				if(p.exitValue() != 0) {
+					System.out.print("Cannot get modulepath. Running 'puppet --configprint modulepath' failed.");
+					System.out.println();
+
+					return IApplication.EXIT_OK;
+				}
+
+				BufferedReader reader = null;
+
+				try {
+					reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+					location = reader.readLine();
+				}
+				finally {
+					if(reader != null)
+						reader.close();
+				}
+
+				if(location == null || location.contains("puppet help")) {
+					System.out.print("Cannot get modulepath. Running 'puppet --configprint modulepath' returned no location.");
+					System.out.println();
+
+					return IApplication.EXIT_OK;
+				}
+			}
+
+			String[] locations = location.split(":");
+
+			for(String loc : locations) {
+				System.out.println("Location: " + location);
+
+				Map<String, List<String>> classMap = new ForgeValidatorCallable().invoke(new File(loc));
+				printResults(classMap);
+			}
 		}
 		catch(CmdLineException e) {
 			System.out.print("Usage: modinfo");
