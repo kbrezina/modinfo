@@ -57,11 +57,9 @@ public class ValidationAllContainersState extends ResourceSetBasedAllContainersS
 		return Multimaps.unmodifiableMultimap(restricted);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
-	 * @see org.eclipse.xtext.resource.containers.ResourceSetBasedAllContainersState#getVisibleContainerHandles(java.lang.String)
-	 */
+	 * @see org.eclipse.xtext.resource.containers.ResourceSetBasedAllContainersState#getVisibleContainerHandles(java.lang.String) */
 	@Override
 	public List<String> getVisibleContainerHandles(String handle) {
 		if(restricted.containsKey(handle))

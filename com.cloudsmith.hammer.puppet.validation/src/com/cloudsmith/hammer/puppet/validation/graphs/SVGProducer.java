@@ -84,19 +84,21 @@ public class SVGProducer {
 	 * When transformation is completed, the given svgStream is in a state where further writes are
 	 * possible. It is the caller's responsibility to close the stream.
 	 * 
-	 * It is possible to inject a filter configuration into the SVG stream by binding an {@link IOutputStreamFilterFactory} annotated with
+	 * It is possible to inject a filter configuration into the SVG stream by binding an {@link IOutputStreamFilterFactory}
+	 * annotated with
 	 * 
 	 * @Named(DependencyGraphModule.GRAPH_SVG_OUTPUT).
 	 * 
 	 * @param dotStream
-	 *            stream with text in DOT language
+	 *        stream with text in DOT language
 	 * @param svgStream
-	 *            stream where SVG(Z) will be written
+	 *        stream where SVG(Z) will be written
 	 * @param compress
-	 *            output is SVGZ if true
+	 *        output is SVGZ if true
 	 * @param monitor
-	 *            used to check for cancellation, and for work pings, will configure SubMonitor with unknown work. Does not call done on
-	 *            the passed monitor - this is the callers responsibility unless a SubMonitor was passed.
+	 *        used to check for cancellation, and for work pings, will configure SubMonitor with unknown work. Does not call done
+	 *        on
+	 *        the passed monitor - this is the callers responsibility unless a SubMonitor was passed.
 	 */
 	public void produceSVG(InputStream dotStream, OutputStream svgStream, boolean compress, IProgressMonitor monitor)
 			throws IOException {

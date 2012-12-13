@@ -52,21 +52,17 @@ public class CatalogGraphTheme extends DefaultStyleTheme implements CatalogGraph
 
 	public static final String MODIFIED_COLOR = COLOR__ORANGE;
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
-	 * @see org.cloudsmith.graph.style.themes.DefaultStyleTheme#defaultFontFamily()
-	 */
+	 * @see org.cloudsmith.graph.style.themes.DefaultStyleTheme#defaultFontFamily() */
 	@Override
 	public String defaultFontFamily() {
 		return super.defaultFontFamily(); // i.e. "Verdana"
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
-	 * @see org.cloudsmith.graph.style.themes.DefaultStyleTheme#getInstanceRules()
-	 */
+	 * @see org.cloudsmith.graph.style.themes.DefaultStyleTheme#getInstanceRules() */
 	@Override
 	public Collection<Rule> getInstanceRules() {
 		ArrayList<Rule> rules = Lists.newArrayList();

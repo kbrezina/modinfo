@@ -143,7 +143,7 @@ public class Diagnostic extends MessageWithSeverity {
 	 * be used.
 	 * 
 	 * @param children
-	 *            The new children to set
+	 *        The new children to set
 	 * @see #addChild(Diagnostic)
 	 * @see #addChildren(Collection)
 	 */
@@ -158,7 +158,7 @@ public class Diagnostic extends MessageWithSeverity {
 
 	/**
 	 * @param issue
-	 *            the issue to set
+	 *        the issue to set
 	 */
 	public void setIssue(String issue) {
 		this.issue = issue;
@@ -166,7 +166,7 @@ public class Diagnostic extends MessageWithSeverity {
 
 	/**
 	 * @param locationLabel
-	 *            the locationLabel to set
+	 *        the locationLabel to set
 	 */
 	public void setLocationLabel(String locationLabel) {
 		this.locationLabel = locationLabel;
@@ -174,7 +174,7 @@ public class Diagnostic extends MessageWithSeverity {
 
 	/**
 	 * @param resourcePath
-	 *            the resourcePath to set
+	 *        the resourcePath to set
 	 */
 	public void setResourcePath(String resourcePath) {
 		this.resourcePath = resourcePath;
@@ -182,7 +182,7 @@ public class Diagnostic extends MessageWithSeverity {
 
 	/**
 	 * @param source
-	 *            the source to set
+	 *        the source to set
 	 */
 	public void setSource(String source) {
 		this.source = source;

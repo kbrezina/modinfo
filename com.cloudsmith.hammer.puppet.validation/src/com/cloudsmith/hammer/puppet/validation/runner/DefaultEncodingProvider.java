@@ -19,11 +19,9 @@ import org.eclipse.emf.common.util.URI;
  */
 public class DefaultEncodingProvider implements IEncodingProvider {
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
-	 * @see com.cloudsmith.hammer.puppet.validation.runner.IEncodingProvider#getEncoding(java.io.File)
-	 */
+	 * @see com.cloudsmith.hammer.puppet.validation.runner.IEncodingProvider#getEncoding(java.io.File) */
 	@Override
 	public String getEncoding(URI uri) {
 		return "UTF-8";

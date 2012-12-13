@@ -35,22 +35,18 @@ public class ProgressMonitorCancelIndicator implements ICancel {
 		pingCounter = 0;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
-	 * @see org.cloudsmith.graph.ICancel#assertContinue()
-	 */
+	 * @see org.cloudsmith.graph.ICancel#assertContinue() */
 	@Override
 	public void assertContinue() throws CancellationException {
 		if(isCanceled())
 			throw new CancellationException();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
-	 * @see org.cloudsmith.graph.ICancel#isCanceled()
-	 */
+	 * @see org.cloudsmith.graph.ICancel#isCanceled() */
 	@Override
 	public boolean isCanceled() {
 		if(++pingCounter > checksPerPing)

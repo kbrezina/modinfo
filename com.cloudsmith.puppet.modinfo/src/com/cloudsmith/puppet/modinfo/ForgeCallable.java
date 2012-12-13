@@ -1,4 +1,5 @@
 package com.cloudsmith.puppet.modinfo;
+
 /**
  * Copyright (c) 2012 Cloudsmith Inc. and other contributors, as listed below.
  * All rights reserved. This program and the accompanying materials
@@ -10,7 +11,6 @@ package com.cloudsmith.puppet.modinfo;
  *   Cloudsmith
  * 
  */
-
 
 import java.io.File;
 import java.io.IOException;
@@ -74,8 +74,6 @@ public abstract class ForgeCallable {
 		DEFAULT_EXCLUDES_PATTERN = Pattern.compile(bld.toString());
 	}
 
-	private transient File repositoryDir;
-
 	private static void appendExcludePattern(String string, StringBuilder bld) {
 		int top = string.length();
 		for(int idx = 0; idx < top; ++idx) {
@@ -97,6 +95,8 @@ public abstract class ForgeCallable {
 			}
 		}
 	}
+
+	private transient File repositoryDir;
 
 	private boolean findModuleFiles(File[] files, List<File> moduleFiles) {
 		if(files != null) {
@@ -133,10 +133,10 @@ public abstract class ForgeCallable {
 		return repositoryDir;
 	}
 
+	protected abstract Map<String, List<String>> invoke() throws IOException, InterruptedException;
+
 	public final Map<String, List<String>> invoke(File f) throws IOException, InterruptedException {
 		repositoryDir = f;
 		return invoke();
 	}
-
-	protected abstract Map<String, List<String>> invoke() throws IOException, InterruptedException;
 }

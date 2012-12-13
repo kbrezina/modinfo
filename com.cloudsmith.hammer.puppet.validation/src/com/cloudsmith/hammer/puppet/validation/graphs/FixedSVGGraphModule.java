@@ -30,32 +30,26 @@ import com.google.inject.Singleton;
  */
 public class FixedSVGGraphModule extends DefaultGraphModule {
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
-	 * @see org.cloudsmith.graph.DefaultGraphModule#bindEmptyStringConstant()
-	 */
+	 * @see org.cloudsmith.graph.DefaultGraphModule#bindEmptyStringConstant() */
 	@Override
 	protected void bindEmptyStringConstant() {
 		bindConstant().annotatedWith(DotRenderer.EmptyString.class).to(SVGFixerOutputStream.EMPTY_STRING_BUG);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
-	 * @see org.cloudsmith.graph.DefaultGraphModule#bindSVGOutputFilterProvider()
-	 */
+	 * @see org.cloudsmith.graph.DefaultGraphModule#bindSVGOutputFilterProvider() */
 	@Override
 	protected void bindSVGOutputFilterProvider() {
 		bind(IOutputStreamFilterFactory.class).annotatedWith(IGraphviz.SVGOutputFilter.class).to(
 			SVGFixerOutputStreamFilterFactory.class).in(Singleton.class);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
-	 * @see org.cloudsmith.graph.DefaultGraphModule#configure()
-	 */
+	 * @see org.cloudsmith.graph.DefaultGraphModule#configure() */
 	@Override
 	protected void configure() {
 		super.configure();

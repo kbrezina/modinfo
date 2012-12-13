@@ -1,4 +1,5 @@
 package com.cloudsmith.puppet.modinfo;
+
 /**
  * Copyright 2012-, Cloudsmith Inc.
  *
@@ -12,7 +13,6 @@ package com.cloudsmith.puppet.modinfo;
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-
 
 import java.io.PrintStream;
 
@@ -40,7 +40,7 @@ public class ResultWithDiagnostic<T> extends Diagnostic {
 
 	/**
 	 * @param result
-	 *            the result to set
+	 *        the result to set
 	 */
 	public void setResult(T result) {
 		this.result = result;

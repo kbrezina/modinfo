@@ -1,4 +1,5 @@
 package com.cloudsmith.puppet.modinfo;
+
 /**
  * Copyright 2012-, Cloudsmith Inc.
  *
@@ -12,7 +13,6 @@ package com.cloudsmith.puppet.modinfo;
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-
 
 import static java.lang.String.format;
 
@@ -72,7 +72,7 @@ public class MessageWithSeverity implements Serializable {
 
 	/**
 	 * @param message
-	 *            the message to set
+	 *        the message to set
 	 */
 	public void setMessage(String message) {
 		this.message = message;
@@ -80,7 +80,7 @@ public class MessageWithSeverity implements Serializable {
 
 	/**
 	 * @param severity
-	 *            the severity to set
+	 *        the severity to set
 	 */
 	public void setSeverity(int severity) {
 		this.severity = severity;

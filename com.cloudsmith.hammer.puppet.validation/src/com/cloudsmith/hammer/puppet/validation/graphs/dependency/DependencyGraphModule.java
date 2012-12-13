@@ -25,11 +25,9 @@ public class DependencyGraphModule extends FixedSVGGraphModule {
 		bind(IHrefProducer.class).to(JavascriptHrefProducer.class);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
-	 * @see org.cloudsmith.graph.DefaultGraphModule#configure()
-	 */
+	 * @see org.cloudsmith.graph.DefaultGraphModule#configure() */
 	@Override
 	protected void configure() {
 		super.configure();

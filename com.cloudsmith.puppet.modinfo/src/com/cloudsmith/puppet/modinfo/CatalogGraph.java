@@ -46,7 +46,7 @@ public class CatalogGraph implements Serializable {
 
 	/**
 	 * @param catalogGraph
-	 *            the catalogGraph to set
+	 *        the catalogGraph to set
 	 */
 	public void setCatalogGraph(String catalogGraph) {
 		this.catalogGraph = catalogGraph;

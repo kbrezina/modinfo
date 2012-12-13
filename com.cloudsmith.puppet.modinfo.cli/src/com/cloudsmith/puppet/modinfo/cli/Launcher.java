@@ -13,9 +13,18 @@ import org.kohsuke.args4j.Option;
 import com.cloudsmith.puppet.modinfo.ForgeValidatorCallable;
 
 public class Launcher implements IApplication {
-	
+
 	@Option(name = "--location", required = true, usage = "Location", metaVar = "<folder>")
 	private String location;
+
+	private void printResults(Map<String, List<String>> classMap) {
+		for(Map.Entry<String, List<String>> moduleEntry : classMap.entrySet()) {
+			System.out.println("Module: " + moduleEntry.getKey());
+
+			for(String className : moduleEntry.getValue())
+				System.out.println("    Class: " + className);
+		}
+	}
 
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
@@ -26,22 +35,14 @@ public class Launcher implements IApplication {
 			System.out.println("Location: " + location);
 			Map<String, List<String>> classMap = new ForgeValidatorCallable().invoke(new File(location));
 			printResults(classMap);
-		} catch (CmdLineException e) {
+		}
+		catch(CmdLineException e) {
 			System.out.print("Usage: modinfo");
 			optionParser.printSingleLineUsage(System.out);
 			System.out.println();
 		}
-		
-		return IApplication.EXIT_OK;
-	}
 
-	private void printResults(Map<String, List<String>> classMap) {
-		for(Map.Entry<String, List<String>> moduleEntry : classMap.entrySet()) {
-			System.out.println("Module: " + moduleEntry.getKey());
-			
-			for(String className : moduleEntry.getValue())
-				System.out.println("    Class: " + className);
-		}
+		return IApplication.EXIT_OK;
 	}
 
 	@Override
