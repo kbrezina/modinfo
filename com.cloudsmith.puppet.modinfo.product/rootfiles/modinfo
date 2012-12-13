@@ -28,7 +28,7 @@ while [ $COUNT -gt 0 ]; do
 			fi
 			VM="$1"
 			shift
-			let COUNT=COUNT-2
+			COUNT=$((COUNT-2))
 			;;
 		'-vmargs')
 			# remaining arguments are vmargs
@@ -37,7 +37,7 @@ while [ $COUNT -gt 0 ]; do
 		*)
 			# normal argument - move it to the end of the argument list 
 			set -- "$@" "$ARG"
-			let COUNT=COUNT-1
+			COUNT=$((COUNT-1))
 			;;
 	esac
 done
