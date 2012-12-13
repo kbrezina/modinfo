@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.varia.NullAppender;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.kohsuke.args4j.CmdLineException;
@@ -15,6 +16,13 @@ import org.kohsuke.args4j.Option;
 import com.cloudsmith.puppet.modinfo.ModuleAnalyzer;
 
 public class Launcher implements IApplication {
+
+	// need to setup log4j to get rid of warnings
+	static {
+		System.setProperty("log4j.defaultInitOverride", "true");
+		org.apache.log4j.LogManager.resetConfiguration();
+		org.apache.log4j.LogManager.getRootLogger().addAppender(new NullAppender());
+	}
 
 	@Option(name = "--location", required = false, usage = "Location", metaVar = "<folder>[:<folder>]*")
 	private String location;
