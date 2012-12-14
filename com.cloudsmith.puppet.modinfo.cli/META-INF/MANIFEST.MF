@@ -10,8 +10,7 @@ Require-Bundle: org.eclipse.equinox.app;bundle-version="1.3.0",
  com.cloudsmith.puppet.modinfo;bundle-version="1.0.0",
  org.apache.log4j;bundle-version="1.2.15",
  org.apache.httpcomponents.httpcore;bundle-version="4.1.2",
- org.apache.httpcomponents.httpclient;bundle-version="4.1.2",
- org.eclipse.core.resources;bundle-version="3.8.0"
+ org.apache.httpcomponents.httpclient;bundle-version="4.1.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: lib/yamlbeans-1.0.jar,
  .

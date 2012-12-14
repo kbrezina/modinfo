@@ -24,7 +24,7 @@ import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.varia.NullAppender;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.kohsuke.args4j.CmdLineException;
@@ -126,8 +126,14 @@ public class Launcher implements IApplication {
 			if(showProgress)
 				System.out.println("- collecting classes that are used...");
 
-			File credFile = new File(
-				ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString(), "modinfo.cred");
+			// TODO find a better way to find app root
+			String appRootFolder = EclipseStarter.getSystemBundleContext().getProperty("osgi.instance.area").replaceAll(
+				"^file:", "");
+			if(appRootFolder == null)
+				appRootFolder = EclipseStarter.getSystemBundleContext().getProperty("osgi.syspath").replaceAll(
+					"plugins$", "");
+
+			File credFile = new File(appRootFolder, "modinfo.cred");
 
 			if(!credFile.exists()) {
 				System.out.println("Cannot find '" + credFile.getAbsolutePath() +
