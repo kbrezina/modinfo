@@ -190,7 +190,7 @@ public class Launcher implements IApplication {
 			System.out.println("    Module: " + moduleEntry.getKey());
 
 			for(String className : moduleEntry.getValue())
-				if(usedClasses.contains(className) || classFilter.equals(CLASS_FILTER_ALL))
+				if(classFilter.equals(CLASS_FILTER_ALL) || usedClasses.contains(className))
 					System.out.println("        Class: " + className);
 		}
 	}
@@ -228,10 +228,10 @@ public class Launcher implements IApplication {
 					return IApplication.EXIT_OK;
 				}
 
-			if(showProgress)
+			if(showProgress) {
 				System.out.println("- analysing existing modules...");
-
-			System.out.println();
+				System.out.println();
+			}
 
 			for(String loc : location.split(":")) {
 				System.out.println("Location: " + loc);
