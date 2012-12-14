@@ -2,6 +2,7 @@ package com.cloudsmith.puppet.modinfo.cli;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Collection;
@@ -23,6 +24,7 @@ import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.varia.NullAppender;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.kohsuke.args4j.CmdLineException;
@@ -124,8 +126,35 @@ public class Launcher implements IApplication {
 			if(showProgress)
 				System.out.println("- collecting classes that are used...");
 
+			File credFile = new File(
+				ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString(), "modinfo.cred");
+
+			if(!credFile.exists()) {
+				System.out.println("Cannot find '" + credFile.getAbsolutePath() +
+						"'.\nCreate the file. The first line has to contain: <PE console user>:<PE console password>");
+				throw new ExitException();
+			}
+
+			String credentials = null;
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader(new InputStreamReader(new FileInputStream(credFile)));
+				credentials = reader.readLine();
+			}
+			finally {
+				if(reader != null)
+					reader.close();
+			}
+
+			String[] cred = null;
+			if(credentials == null || (cred = credentials.split(":")).length != 2) {
+				System.out.println("Credential file '" + credFile.getAbsolutePath() +
+						"' syntax error. The first line has to contain: <PE console user>:<PE console password>");
+				throw new ExitException();
+			}
+
 			final HttpClient httpClient = WebClientDevWrapper.wrapClient(new DefaultHttpClient());
-			Credentials defaultcreds = new UsernamePasswordCredentials("adminuser@example.com", "amin123");
+			Credentials defaultcreds = new UsernamePasswordCredentials(cred[0], cred[1]);
 
 			final HttpRequestBase httpMethod = new HttpGet(new URI(YAML_NODES_URI));
 			httpMethod.addHeader(new BasicScheme().authenticate(defaultcreds, httpMethod));
@@ -146,23 +175,30 @@ public class Launcher implements IApplication {
 
 			if(contentEntity != null) {
 
-				YamlReader reader = new YamlReader(new BufferedReader(new InputStreamReader(
-					contentEntity.getContent(), EntityUtils.getContentCharSet(contentEntity))));
-				Object object = reader.read();
+				YamlReader yamlReader = null;
+				try {
+					yamlReader = new YamlReader(new BufferedReader(new InputStreamReader(
+						contentEntity.getContent(), EntityUtils.getContentCharSet(contentEntity))));
+					Object object = yamlReader.read();
 
-				if(object instanceof List) {
-					for(Map<String, Object> map : (List<Map<String, Object>>) object) {
-						Collection<String> classes = (Collection<String>) map.get("classes");
-						if(classes != null)
-							usedClasses.addAll(classes);
+					if(object instanceof List) {
+						for(Map<String, Object> map : (List<Map<String, Object>>) object) {
+							Collection<String> classes = (Collection<String>) map.get("classes");
+							if(classes != null)
+								usedClasses.addAll(classes);
+						}
+					}
+					else {
+						System.out.print("Cannot get list of classes that are used for nodes. Request to '" +
+								YAML_NODES_URI + "' returned unrecognized response.");
+						System.out.println();
+
+						throw new ExitException();
 					}
 				}
-				else {
-					System.out.print("Cannot get list of classes that are used for nodes. Request to '" +
-							YAML_NODES_URI + "' returned unrecognized response.");
-					System.out.println();
-
-					throw new ExitException();
+				finally {
+					if(yamlReader != null)
+						yamlReader.close();
 				}
 			}
 			else {
