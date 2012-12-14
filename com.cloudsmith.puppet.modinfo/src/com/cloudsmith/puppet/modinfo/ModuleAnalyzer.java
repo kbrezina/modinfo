@@ -325,8 +325,8 @@ public class ModuleAnalyzer {
 			Collections.sort(classes);
 
 			String path = moduleLocation.getAbsolutePath();
-			if(path.startsWith(rootPath))
-				path = path.substring(rootPath.length());
+			//if(path.startsWith(rootPath))
+			//	path = path.substring(rootPath.length());
 
 			classMap.put(path, classes);
 		}

@@ -3,8 +3,10 @@ package com.cloudsmith.puppet.modinfo.cli;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -27,6 +29,14 @@ import org.apache.log4j.varia.NullAppender;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.jrubyparser.ast.FCallNode;
+import org.jrubyparser.ast.IArgumentNode;
+import org.jrubyparser.ast.ListNode;
+import org.jrubyparser.ast.NilNode;
+import org.jrubyparser.ast.Node;
+import org.jrubyparser.ast.NodeType;
+import org.jrubyparser.ast.RootNode;
+import org.jrubyparser.ast.StrNode;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -46,6 +56,63 @@ public class Launcher implements IApplication {
 		System.setProperty("log4j.defaultInitOverride", "true");
 		org.apache.log4j.LogManager.resetConfiguration();
 		org.apache.log4j.LogManager.getRootLogger().addAppender(new NullAppender());
+	}
+
+	private static String getModuleDigest(String modulePath) throws IOException {
+
+		String name = null;
+		String version = null;
+
+		RootNode root = RubyParserUtils.parseFile(new File(modulePath, "Modulefile"));
+		for(Node node : RubyParserUtils.findNodes(root.getBodyNode(), new NodeType[] { NodeType.FCALLNODE })) {
+			FCallNode call = (FCallNode) node;
+			String key = call.getName();
+			List<String> args = getStringArguments(call);
+
+			if("name".equals(key))
+				name = args.get(0);
+			else if("version".equals(key))
+				version = args.get(0);
+
+			if(name != null && version != null)
+				break;
+		}
+
+		StringBuilder sb = new StringBuilder();
+
+		if(name != null)
+			sb.append(name);
+		else {
+			String[] segments = modulePath.split("/");
+			sb.append(segments[segments.length - 1]);
+		}
+
+		if(version != null) {
+			sb.append("(");
+			sb.append(version);
+			sb.append(")");
+		}
+
+		return sb.toString();
+	}
+
+	private static List<String> getStringArguments(IArgumentNode callNode) throws IllegalArgumentException {
+		Node argsNode = callNode.getArgs();
+		if(!(argsNode instanceof ListNode))
+			throw new IllegalArgumentException("IArgumentNode expected");
+		ListNode args = (ListNode) argsNode;
+		int top = args.size();
+		ArrayList<String> stringArgs = new ArrayList<String>(top);
+		for(int idx = 0; idx < top; ++idx) {
+			Node argNode = args.get(idx);
+			if(argNode instanceof StrNode)
+				stringArgs.add(((StrNode) argNode).getValue());
+			else if(argNode instanceof NilNode)
+				stringArgs.add(null);
+			else
+				throw new IllegalArgumentException("Can't make a string from a " + argNode.getNodeType());
+		}
+		return stringArgs;
 	}
 
 	private static void printUsage(CmdLineParser optionParser) {
@@ -127,8 +194,10 @@ public class Launcher implements IApplication {
 				System.out.println("- collecting classes that are used...");
 
 			// TODO find a better way to find app root
-			String appRootFolder = EclipseStarter.getSystemBundleContext().getProperty("osgi.instance.area").replaceAll(
-				"^file:", "");
+			String appRootFolder = null;
+			String osgiInstanceArea = EclipseStarter.getSystemBundleContext().getProperty("osgi.instance.area");
+			if(osgiInstanceArea != null)
+				appRootFolder = osgiInstanceArea.replaceAll("^file:", "");
 			if(appRootFolder == null)
 				appRootFolder = EclipseStarter.getSystemBundleContext().getProperty("osgi.syspath").replaceAll(
 					"plugins$", "");
@@ -227,9 +296,9 @@ public class Launcher implements IApplication {
 		return usedClasses;
 	}
 
-	private void printResults(Map<String, List<String>> classMap, Collection<String> usedClasses) {
+	private void printResults(Map<String, List<String>> classMap, Collection<String> usedClasses) throws IOException {
 		for(Map.Entry<String, List<String>> moduleEntry : classMap.entrySet()) {
-			System.out.println("    Module: " + moduleEntry.getKey());
+			System.out.println("    Module: " + getModuleDigest(moduleEntry.getKey()));
 
 			for(String className : moduleEntry.getValue())
 				if(classFilter.equals(CLASS_FILTER_ALL) || usedClasses.contains(className))
