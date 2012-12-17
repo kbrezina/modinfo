@@ -1242,9 +1242,7 @@ public class ValidationServiceImpl extends EObjectImpl implements ValidationServ
 				}
 			};
 
-			//TODO This causes stack overflow in regexp on PE master
-			//List<Issue> issues = validator.validate(r.getValue(), CheckMode.ALL, cancelMonitor);
-			List<Issue> issues = Collections.emptyList();
+			List<Issue> issues = validator.validate(r.getValue(), CheckMode.ALL, cancelMonitor);
 			for(Issue issue : issues) {
 				addIssueDiagnostic(diagnostics, issue, f, root);
 			}

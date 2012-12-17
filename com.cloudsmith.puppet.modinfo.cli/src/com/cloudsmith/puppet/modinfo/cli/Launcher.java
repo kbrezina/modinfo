@@ -64,7 +64,7 @@ public class Launcher implements IApplication {
 		String version = null;
 
 		RootNode root = RubyParserUtils.parseFile(new File(modulePath, "Modulefile"));
-		for(Node node : RubyParserUtils.findNodes(root.getBodyNode(), new NodeType[] { NodeType.FCALLNODE })) {
+		for(Node node : RubyParserUtils.findNodes(root.getBody(), new NodeType[] { NodeType.FCALLNODE })) {
 			FCallNode call = (FCallNode) node;
 			String key = call.getName();
 			List<String> args = getStringArguments(call);
@@ -133,7 +133,7 @@ public class Launcher implements IApplication {
 	@Option(name = "--help", required = false, usage = "Show this help")
 	private boolean helpRequested;
 
-	@Option(name = "--progress", required = false, usage = "Show progress")
+	@Option(name = "--verbose", required = false, usage = "Show operation steps")
 	private boolean showProgress;
 
 	private String getPEModulePath() throws ExitException {
@@ -206,7 +206,7 @@ public class Launcher implements IApplication {
 
 			if(!credFile.exists()) {
 				System.out.println("Cannot find '" + credFile.getAbsolutePath() +
-						"'.\nCreate the file. The first line has to contain: <PE console user>:<PE console password>");
+						"'.\nPlease, create a file with a single line formatted as '<PE console user>:<PE console password>'");
 				throw new ExitException();
 			}
 
@@ -340,7 +340,7 @@ public class Launcher implements IApplication {
 				}
 
 			if(showProgress) {
-				System.out.println("- analysing existing modules...");
+				System.out.println("- analyzing existing modules...");
 				System.out.println();
 			}
 
