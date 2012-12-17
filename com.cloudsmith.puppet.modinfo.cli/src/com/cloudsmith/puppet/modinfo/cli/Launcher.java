@@ -136,6 +136,12 @@ public class Launcher implements IApplication {
 	@Option(name = "--verbose", required = false, usage = "Show operation steps")
 	private boolean showProgress;
 
+	@Option(name = "--orderBy", required = false, usage = "Module order; by default the parameter is set to 'name'", metaVar = "name|severity")
+	private String orderBy;
+
+	@Option(name = "--validation", required = false, usage = "Validation type; by default the parameter is set to 'aggregate'", metaVar = "aggregate|detailed")
+	private String validation;
+
 	private String getPEModulePath() throws ExitException {
 
 		String location = null;
