@@ -41,11 +41,14 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
+import com.cloudsmith.puppet.modinfo.Diagnostic;
+import com.cloudsmith.puppet.modinfo.MessageWithSeverity;
 import com.cloudsmith.puppet.modinfo.ModuleAnalyzer;
+import com.cloudsmith.puppet.modinfo.ModuleInfo;
 
 public class Launcher implements IApplication {
 
-	private static final String YAML_NODES_URI = "https://33.33.33.10/nodes";
+	private static final String DEFAULT_PUPPET_CONSOLE_URL = "localhost";
 
 	private static final String CLASS_FILTER_ALL = "all";
 
@@ -58,12 +61,20 @@ public class Launcher implements IApplication {
 		org.apache.log4j.LogManager.getRootLogger().addAppender(new NullAppender());
 	}
 
-	private static String getModuleDigest(String modulePath) throws IOException {
+	private static final String VALIDATION_AGGREGATE = "aggregate";
+
+	private static final String VALIDATION_DETAILED = "detailed";
+
+	private static final String DEFAULT_VALIDATION = VALIDATION_AGGREGATE;
+
+	private static String getModuleDigest(String rootPath, ModuleInfo moduleInfo) throws IOException {
+
+		String modulePath = moduleInfo.getLocation();
 
 		String name = null;
 		String version = null;
 
-		RootNode root = RubyParserUtils.parseFile(new File(modulePath, "Modulefile"));
+		RootNode root = RubyParserUtils.parseFile(new File(rootPath + File.separatorChar + modulePath, "Modulefile"));
 		for(Node node : RubyParserUtils.findNodes(root.getBody(), new NodeType[] { NodeType.FCALLNODE })) {
 			FCallNode call = (FCallNode) node;
 			String key = call.getName();
@@ -88,10 +99,17 @@ public class Launcher implements IApplication {
 		}
 
 		if(version != null) {
-			sb.append("(");
+			sb.append('(');
 			sb.append(version);
-			sb.append(")");
+			sb.append(')');
 		}
+
+		sb.append(' ');
+		sb.append('[');
+		sb.append(moduleInfo.getErrorCount());
+		sb.append(" errors, ");
+		sb.append(moduleInfo.getWarningCount());
+		sb.append(" warnings]");
 
 		return sb.toString();
 	}
@@ -130,14 +148,18 @@ public class Launcher implements IApplication {
 	@Option(name = "--classes", required = false, usage = "Class filter; by default the parameter is set to 'used'", metaVar = "all|used")
 	private String classFilter;
 
+	@Option(name = "--consoleURL", required = false, usage = "Puppet Console URL; default is 'localhost'", metaVar = "<puppet console URL>")
+	private String puppetConsoleURL;
+
 	@Option(name = "--help", required = false, usage = "Show this help")
 	private boolean helpRequested;
 
 	@Option(name = "--verbose", required = false, usage = "Show operation steps")
-	private boolean showProgress;
+	private boolean verbose;
 
-	@Option(name = "--orderBy", required = false, usage = "Module order; by default the parameter is set to 'name'", metaVar = "name|severity")
-	private String orderBy;
+	//TODO Sort by specified rules
+	//	@Option(name = "--orderBy", required = false, usage = "Module order; by default the parameter is set to 'name'", metaVar = "name|severity")
+	//	private String orderBy;
 
 	@Option(name = "--validation", required = false, usage = "Validation type; by default the parameter is set to 'aggregate'", metaVar = "aggregate|detailed")
 	private String validation;
@@ -147,8 +169,8 @@ public class Launcher implements IApplication {
 		String location = null;
 
 		try {
-			if(showProgress)
-				System.out.println("- getting modulepath...");
+			if(verbose)
+				System.out.println("Getting modulepath...");
 
 			Process p = Runtime.getRuntime().exec("puppet --configprint modulepath");
 			p.waitFor();
@@ -195,9 +217,11 @@ public class Launcher implements IApplication {
 
 		Set<String> usedClasses = new HashSet<String>();
 
+		String yaml_nodes_uri = puppetConsoleURL + "/nodes";
+
 		try {
-			if(showProgress)
-				System.out.println("- collecting classes that are used...");
+			if(verbose)
+				System.out.println("Collecting classes that are used...");
 
 			// TODO find a better way to find app root
 			String appRootFolder = null;
@@ -237,7 +261,7 @@ public class Launcher implements IApplication {
 			final HttpClient httpClient = WebClientDevWrapper.wrapClient(new DefaultHttpClient());
 			Credentials defaultcreds = new UsernamePasswordCredentials(cred[0], cred[1]);
 
-			final HttpRequestBase httpMethod = new HttpGet(new URI(YAML_NODES_URI));
+			final HttpRequestBase httpMethod = new HttpGet(new URI(yaml_nodes_uri));
 			httpMethod.addHeader(new BasicScheme().authenticate(defaultcreds, httpMethod));
 			httpMethod.addHeader("Accept", "text/yaml");
 
@@ -245,7 +269,7 @@ public class Launcher implements IApplication {
 			int statusCode = response.getStatusLine().getStatusCode();
 
 			if(statusCode != 200) {
-				System.out.print("Cannot get list of classes that are used for nodes. Request to '" + YAML_NODES_URI +
+				System.out.print("Cannot get list of classes that are used for nodes. Request to '" + yaml_nodes_uri +
 						"' returned status code " + statusCode + ".");
 				System.out.println();
 
@@ -271,7 +295,7 @@ public class Launcher implements IApplication {
 					}
 					else {
 						System.out.print("Cannot get list of classes that are used for nodes. Request to '" +
-								YAML_NODES_URI + "' returned unrecognized response.");
+								yaml_nodes_uri + "' returned unrecognized response.");
 						System.out.println();
 
 						throw new ExitException();
@@ -283,7 +307,7 @@ public class Launcher implements IApplication {
 				}
 			}
 			else {
-				System.out.print("Cannot get list of classes that are used for nodes. Request to '" + YAML_NODES_URI +
+				System.out.print("Cannot get list of classes that are used for nodes. Request to '" + yaml_nodes_uri +
 						"' returned no response.");
 				System.out.println();
 
@@ -294,7 +318,7 @@ public class Launcher implements IApplication {
 			throw e;
 		}
 		catch(Exception e) {
-			System.out.println("Cannot get list of classes that are used for nodes. Request to '" + YAML_NODES_URI +
+			System.out.println("Cannot get list of classes that are used for nodes. Request to '" + yaml_nodes_uri +
 					"' failed. Error messsage: " + e.getMessage());
 			throw new ExitException();
 		}
@@ -302,14 +326,49 @@ public class Launcher implements IApplication {
 		return usedClasses;
 	}
 
-	private void printResults(Map<String, List<String>> classMap, Collection<String> usedClasses) throws IOException {
-		for(Map.Entry<String, List<String>> moduleEntry : classMap.entrySet()) {
-			System.out.println("    Module: " + getModuleDigest(moduleEntry.getKey()));
+	private void printResults(String rootPath, List<ModuleInfo> moduleInfos, Collection<String> usedClasses)
+			throws IOException {
+		for(ModuleInfo moduleInfo : moduleInfos) {
+			System.out.println("    Module: " + getModuleDigest(rootPath, moduleInfo));
+			System.out.println("      Location: " + moduleInfo.getLocation());
 
-			for(String className : moduleEntry.getValue())
-				if(classFilter.equals(CLASS_FILTER_ALL) || usedClasses.contains(className))
-					System.out.println("        Class: " + className);
+			boolean classesLabel = false;
+			for(String className : moduleInfo.getClasses())
+				if(classFilter.equals(CLASS_FILTER_ALL) || usedClasses.contains(className)) {
+					if(!classesLabel) {
+						System.out.println("      Classes: ");
+						classesLabel = true;
+					}
+					System.out.println("        " + className);
+				}
+
+			if(VALIDATION_DETAILED.equals(validation)) {
+				List<Diagnostic> errors = moduleInfo.getDiagnostics(MessageWithSeverity.ERROR);
+				if(!errors.isEmpty()) {
+					System.out.println("      Errors: ");
+					for(Diagnostic error : errors)
+						System.out.println("        " +
+								relativePath(error.getResourcePath(), moduleInfo.getLocation()) + ", line " +
+								error.getLine() + ": " + error.getMessage());
+				}
+
+				List<Diagnostic> warnings = moduleInfo.getDiagnostics(MessageWithSeverity.WARNING);
+				if(!warnings.isEmpty()) {
+					System.out.println("      Warnings: ");
+					for(Diagnostic warning : warnings)
+						System.out.println("        " +
+								relativePath(warning.getResourcePath(), moduleInfo.getLocation()) + ", line " +
+								warning.getLine() + ": " + warning.getMessage());
+				}
+			}
 		}
+	}
+
+	private String relativePath(String path, String root) {
+		if(path.startsWith(root))
+			return path.substring(root.length() + 1);
+
+		return path;
 	}
 
 	@Override
@@ -333,6 +392,18 @@ public class Launcher implements IApplication {
 					return IApplication.EXIT_OK;
 				}
 
+			if(validation == null)
+				validation = DEFAULT_VALIDATION;
+			else {
+				if(!(VALIDATION_AGGREGATE.equals(validation) || VALIDATION_DETAILED.equals(validation))) {
+					printUsage(optionParser);
+					return IApplication.EXIT_OK;
+				}
+			}
+
+			if(puppetConsoleURL == null)
+				puppetConsoleURL = DEFAULT_PUPPET_CONSOLE_URL;
+
 			if(classFilter == null)
 				classFilter = CLASS_FILTER_USED;
 
@@ -345,16 +416,16 @@ public class Launcher implements IApplication {
 					return IApplication.EXIT_OK;
 				}
 
-			if(showProgress) {
-				System.out.println("- analyzing existing modules...");
+			if(verbose) {
+				System.out.println("Analyzing existing modules...");
 				System.out.println();
 			}
 
 			for(String loc : location.split(":")) {
-				System.out.println("Location: " + loc);
+				System.out.println("Analyzing location '" + loc + "'...");
 
-				Map<String, List<String>> classMap = new ModuleAnalyzer().invoke(new File(loc));
-				printResults(classMap, usedClasses);
+				List<ModuleInfo> moduleInfos = new ModuleAnalyzer().invoke(new File(loc));
+				printResults(loc, moduleInfos, usedClasses);
 			}
 		}
 		catch(CmdLineException e) {

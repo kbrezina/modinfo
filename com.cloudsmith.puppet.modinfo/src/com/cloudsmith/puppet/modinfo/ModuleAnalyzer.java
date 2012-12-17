@@ -20,9 +20,10 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.cloudsmith.geppetto.common.os.StreamUtil.OpenBAStream;
@@ -295,12 +296,13 @@ public class ModuleAnalyzer {
 		return moduleRoots;
 	}
 
-	private Map<String, List<String>> geppettoValidation(List<File> moduleLocations,
-			List<File> importedModuleLocations, ResultWithDiagnostic<byte[]> result) throws IOException {
+	private List<ModuleInfo> geppettoValidation(List<File> moduleLocations) throws IOException {
 
 		BasicDiagnostic diagnostics = new BasicDiagnostic();
 
 		OpenBAStream dotStream = new OpenBAStream();
+
+		List<File> importedModuleLocations = Collections.<File> emptyList();
 
 		ModuleDependencyGraphOptions graphOptions = getDependencyGraphOptions(dotStream, importedModuleLocations);
 		ValidationOptions options = getValidationOptions(moduleLocations, importedModuleLocations);
@@ -311,9 +313,11 @@ public class ModuleAnalyzer {
 			importedModuleLocations.toArray(new File[importedModuleLocations.size()]), new NullProgressMonitor());
 		AllModuleReferences references = buildResult.getAllModuleReferences();
 
-		Map<String, List<String>> classMap = new TreeMap<String, List<String>>();
+		List<ModuleInfo> moduleInfos = new ArrayList<ModuleInfo>();
+		Map<String, ModuleInfo> moduleMap = new HashMap<String, ModuleInfo>();
 
-		String rootPath = getRepositoryDir().getAbsolutePath() + '/';
+		String rootPath = getRepositoryDir().getAbsolutePath() + File.separatorChar;
+		int rootPathLen = rootPath.length();
 
 		for(File moduleLocation : moduleLocations) {
 			Multimap<File, Export> exportsPerModule = references.getExportsPerModule();
@@ -324,21 +328,37 @@ public class ModuleAnalyzer {
 
 			Collections.sort(classes);
 
-			String path = moduleLocation.getAbsolutePath();
-			//if(path.startsWith(rootPath))
-			//	path = path.substring(rootPath.length());
+			String location = moduleLocation.getAbsolutePath();
+			if(location.startsWith(rootPath))
+				location = location.substring(rootPathLen);
 
-			classMap.put(path, classes);
+			ModuleInfo moduleInfo;
+
+			moduleInfos.add(moduleInfo = new ModuleInfo(location, classes));
+			moduleMap.put(location, moduleInfo);
 		}
+
+		Collections.sort(moduleInfos, new Comparator<ModuleInfo>() {
+
+			@Override
+			public int compare(ModuleInfo m1, ModuleInfo m2) {
+				return m1.getLocation().compareTo(m2.getLocation());
+			}
+
+		});
 
 		for(org.eclipse.emf.common.util.Diagnostic diagnostic : diagnostics.getChildren()) {
 			Diagnostic diag = convertValidationDiagnostic(diagnostic);
-			if(diag != null)
-				result.addChild(diag);
-		}
-		//result.setResult(produceSVG(dotStream.getInputStream()));
+			String diagPath = diag.getResourcePath();
 
-		return classMap;
+			for(Map.Entry<String, ModuleInfo> entry : moduleMap.entrySet())
+				if(diagPath != null && diagPath.startsWith(entry.getKey())) {
+					entry.getValue().addDiagnostic(diag);
+					break;
+				}
+		}
+
+		return moduleInfos;
 	}
 
 	private ModuleDependencyGraphOptions getDependencyGraphOptions(OutputStream dotStream, List<File> moduleLocations)
@@ -434,14 +454,14 @@ public class ModuleAnalyzer {
 		return options;
 	}
 
-	public final Map<String, List<String>> invoke(File f) throws IOException, InterruptedException {
+	public final List<ModuleInfo> invoke(File f) throws IOException, InterruptedException {
 		repositoryDir = f;
 
 		ResultWithDiagnostic<byte[]> resultWithDiagnostic = new ResultWithDiagnostic<byte[]>();
 		List<File> moduleRoots = findModuleRoots();
 		if(moduleRoots.isEmpty()) {
 			resultWithDiagnostic.addChild(new Diagnostic(MessageWithSeverity.ERROR, "No modules found in repository"));
-			return Collections.emptyMap();
+			return Collections.emptyList();
 		}
 
 		PPStandaloneSetup.doSetup();
@@ -491,10 +511,9 @@ public class ModuleAnalyzer {
 		//		lintValidation(moduleRoots, result);
 		//		return result;
 
-		Map<String, List<String>> moduleClassMap = geppettoValidation(
-			moduleRoots, Collections.<File> emptyList(), resultWithDiagnostic);
+		List<ModuleInfo> moduleInfos = geppettoValidation(moduleRoots);
 
-		return moduleClassMap;
+		return moduleInfos;
 	}
 
 	private void lintValidation(List<File> moduleLocations, Diagnostic result) throws IOException {
