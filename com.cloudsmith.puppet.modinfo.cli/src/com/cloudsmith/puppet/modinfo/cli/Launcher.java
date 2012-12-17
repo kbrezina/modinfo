@@ -330,7 +330,7 @@ public class Launcher implements IApplication {
 			throws IOException {
 		for(ModuleInfo moduleInfo : moduleInfos) {
 			System.out.println("    Module: " + getModuleDigest(rootPath, moduleInfo));
-			System.out.println("      Location: " + moduleInfo.getLocation());
+			System.out.println("      Relative path: " + moduleInfo.getLocation());
 
 			boolean classesLabel = false;
 			for(String className : moduleInfo.getClasses())
@@ -416,13 +416,8 @@ public class Launcher implements IApplication {
 					return IApplication.EXIT_OK;
 				}
 
-			if(verbose) {
-				System.out.println("Analyzing existing modules...");
-				System.out.println();
-			}
-
 			for(String loc : location.split(":")) {
-				System.out.println("Analyzing location '" + loc + "'...");
+				System.out.println("Analyzing modules in location '" + loc + "'...");
 
 				List<ModuleInfo> moduleInfos = new ModuleAnalyzer().invoke(new File(loc));
 				printResults(loc, moduleInfos, usedClasses);
