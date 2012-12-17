@@ -331,15 +331,14 @@ public class ModuleAnalyzer {
 			classMap.put(path, classes);
 		}
 
-		return classMap;
+		for(org.eclipse.emf.common.util.Diagnostic diagnostic : diagnostics.getChildren()) {
+			Diagnostic diag = convertValidationDiagnostic(diagnostic);
+			if(diag != null)
+				result.addChild(diag);
+		}
+		//result.setResult(produceSVG(dotStream.getInputStream()));
 
-		//TODO Process diagnostics
-		//		for(org.eclipse.emf.common.util.Diagnostic diagnostic : diagnostics.getChildren()) {
-		//			Diagnostic diag = convertValidationDiagnostic(diagnostic);
-		//			if(diag != null)
-		//				result.addChild(diag);
-		//		}
-		//		result.setResult(produceSVG(dotStream.getInputStream()));
+		return classMap;
 	}
 
 	private ModuleDependencyGraphOptions getDependencyGraphOptions(OutputStream dotStream, List<File> moduleLocations)
@@ -384,9 +383,8 @@ public class ModuleAnalyzer {
 		return repositoryDir;
 	}
 
-	//TODO What's this?
 	private synchronized String getRepositoryHrefPrefix() {
-		return "DUMMY";
+		return "";
 	}
 
 	//	private synchronized String getRepositoryHrefPrefix() {
@@ -439,10 +437,10 @@ public class ModuleAnalyzer {
 	public final Map<String, List<String>> invoke(File f) throws IOException, InterruptedException {
 		repositoryDir = f;
 
-		ResultWithDiagnostic<byte[]> result = new ResultWithDiagnostic<byte[]>();
+		ResultWithDiagnostic<byte[]> resultWithDiagnostic = new ResultWithDiagnostic<byte[]>();
 		List<File> moduleRoots = findModuleRoots();
 		if(moduleRoots.isEmpty()) {
-			result.addChild(new Diagnostic(MessageWithSeverity.ERROR, "No modules found in repository"));
+			resultWithDiagnostic.addChild(new Diagnostic(MessageWithSeverity.ERROR, "No modules found in repository"));
 			return Collections.emptyMap();
 		}
 
@@ -493,7 +491,10 @@ public class ModuleAnalyzer {
 		//		lintValidation(moduleRoots, result);
 		//		return result;
 
-		return geppettoValidation(moduleRoots, Collections.<File> emptyList(), result);
+		Map<String, List<String>> moduleClassMap = geppettoValidation(
+			moduleRoots, Collections.<File> emptyList(), resultWithDiagnostic);
+
+		return moduleClassMap;
 	}
 
 	private void lintValidation(List<File> moduleLocations, Diagnostic result) throws IOException {
